@@ -30,10 +30,13 @@ function RobotMesh({ isGreeting }: { isGreeting: boolean }) {
 
     // Trigger Smile (Assuming your model uses Morph Targets for facial expressions)
     // Replace 'FaceMesh' with the actual node name of your robot's face
-    if (nodes.FaceMesh && nodes.FaceMesh.morphTargetInfluences) {
-      // Index 0 is just an example; you'll need to find which index represents the smile
-      nodes.FaceMesh.morphTargetInfluences[0] = isGreeting ? 1 : 0; 
-    }
+    const faceMesh = nodes.FaceMesh as THREE.Mesh & {
+  morphTargetInfluences?: number[];
+};
+
+if (faceMesh?.morphTargetInfluences) {
+  faceMesh.morphTargetInfluences[0] = isGreeting ? 1 : 0;
+}
   }, [isGreeting, actions, nodes]);
 
   useFrame(() => {
@@ -45,10 +48,21 @@ function RobotMesh({ isGreeting }: { isGreeting: boolean }) {
 
     // Tracking the cursor with the Head bone looks much more natural than the whole body
     // Replace 'Head' with the exact name of the head bone in your model
-    if (nodes.Head) {
-      nodes.Head.rotation.y = THREE.MathUtils.lerp(nodes.Head.rotation.y, targetX, 0.08);
-      nodes.Head.rotation.x = THREE.MathUtils.lerp(nodes.Head.rotation.x, -targetY, 0.08);
-    } else {
+    const head = nodes.Head as THREE.Object3D;
+
+if (head) {
+  head.rotation.y = THREE.MathUtils.lerp(
+    head.rotation.y,
+    targetX,
+    0.08
+  );
+
+  head.rotation.x = THREE.MathUtils.lerp(
+    head.rotation.x,
+    -targetY,
+    0.08
+  );
+} else {
       // Fallback: rotate the whole body slightly if no head bone is found
       groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetX * 0.5, 0.05);
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, -targetY * 0.5, 0.05);
