@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import FloatingCubes3D from './AgenticCore3D'; 
 
@@ -9,9 +9,19 @@ const containerVariants = {
   show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+const itemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1] as const,
+    },
+  },
 };
 
 export default function HeroSection() {
