@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Loader from '../components/Loader'; 
+import Navbar from '../components/navbar'; 
 import HeroSection from '../components/hero'; 
-import Navbar from '../components/navbar'; // Import your new Navbar
+import AboutSection from '../components/about';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +23,7 @@ export default function Home() {
         <>
           <Navbar />
           <HeroSection />
+          <AboutSection />
         </>
       )}
     </main>
