@@ -39,17 +39,20 @@ export default function Navbar() {
   return (
     <>
       <motion.header
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 w-full z-50 pointer-events-none"
-      >
+  initial={{ y: -50, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+  style={{
+    filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.35))',
+  }}
+  className="fixed top-0 left-0 w-full z-50 pointer-events-none"
+>
         {/* MAIN COMMAND INTERFACE CONTAINER */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           
           {/* PANEL 1: Brand & Logo (Left) */}
 {/* PANEL 1: Brand & Logo (Left) */}
-<div className="flex items-center gap-3 sm:gap-4 pointer-events-auto bg-[#0a0202]/80 backdrop-blur-xl border border-white/5 pr-4 sm:pr-6 pl-2 py-2 rounded-lg shadow-2xl relative group cursor-pointer">
+<div className="flex items-center gap-3 sm:gap-4 pointer-events-auto bg-[#0a0202]/95 backdrop-blur-2xl border border-white/15 pr-4 sm:pr-6 pl-2 py-2 rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.45)] relative group cursor-pointer">
   {/* Corner Crosshairs */}
   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-red-500/50" />
   <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-red-500/50" />
@@ -66,7 +69,8 @@ export default function Navbar() {
 </div>
 
           {/* PANEL 2: Advanced Indexed Navigation (Center - Desktop Only) */}
-          <nav className="hidden lg:flex items-center gap-1 pointer-events-auto bg-[#050101]/90 backdrop-blur-xl border border-white/5 px-2 py-1 rounded-md">
+          <nav className="hidden lg:flex items-center gap-1 pointer-events-auto bg-[#050101]/95 backdrop-blur-2xl border border-white/10 px-2 py-1 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.45)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-red-500/5 pointer-events-none" />
             {navLinks.map((link, index) => (
               <a
                 key={link.name}
@@ -76,12 +80,12 @@ export default function Navbar() {
                 className="relative px-5 py-3 group flex items-center gap-2"
               >
                 {/* Index Number */}
-                <span className={`text-[9px] font-mono tracking-widest transition-colors duration-300 ${hoveredIndex === index ? 'text-red-500' : 'text-zinc-600'}`}>
+                <span className={`text-[9px] font-mono tracking-widest transition-colors duration-300 ${hoveredIndex === index ? 'text-red-500' : 'text-zinc-500'}`}>
                   {link.id} <span className="text-zinc-700">//</span>
                 </span>
                 
                 {/* Link Text */}
-                <span className={`relative z-10 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors duration-300 ${hoveredIndex === index ? 'text-white' : 'text-zinc-400'}`}>
+                <span className={`relative z-10 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors duration-300 ${hoveredIndex === index ? 'text-white' : 'text-zinc-200'}`}>
                   {link.name}
                 </span>
 
@@ -94,7 +98,7 @@ export default function Navbar() {
                 >
                   <div className="absolute top-1/2 left-1 -translate-y-1/2 w-1.5 h-3 border-l-2 border-y-2 border-red-600 opacity-80" />
                   <div className="absolute top-1/2 right-1 -translate-y-1/2 w-1.5 h-3 border-r-2 border-y-2 border-red-600 opacity-80" />
-                  <div className="absolute inset-0 bg-red-900/10 rounded-sm -z-10" />
+                  <div className="absolute inset-0 bg-red-600/10 rounded-sm -z-10 shadow-[0_0_20px_rgba(220,38,38,0.25)]" />
                 </motion.div>
               </a>
             ))}
@@ -105,7 +109,7 @@ export default function Navbar() {
             
             {/* Action CTA Button (Hidden on Small Mobile) */}
             <button 
-              className="hidden min-[450px]:flex relative group bg-white text-black px-6 sm:px-8 py-3 flex items-center gap-3 overflow-hidden transition-all duration-300 hover:bg-zinc-200 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(220,38,38,0.25)]"
+              className="hidden min-[450px]:flex relative group bg-white text-black px-6 sm:px-8 py-3 flex items-center gap-3 overflow-hidden transition-all duration-300 hover:bg-zinc-200 shadow-[0_0_25px_rgba(255,255,255,0.15)] hover:shadow-[0_0_40px_rgba(220,38,38,0.45)]"
               style={{ clipPath: 'polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%)' }}
             >
               <div className="absolute inset-0 bg-red-600 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
@@ -125,7 +129,7 @@ export default function Navbar() {
             {/* Mobile Toggle Burger Button (Visible under lg) */}
             <button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="lg:hidden relative h-9 w-12 sm:w-14 bg-[#0a0202]/80 backdrop-blur-md border border-white/10 rounded-md flex items-center justify-center overflow-hidden group active:border-red-500/50"
+              className="lg:hidden relative h-9 w-12 sm:w-14 bg-[#0a0202]/95 backdrop-blur-xl border border-white/20 rounded-md flex items-center justify-center overflow-hidden group active:border-red-500/50 shadow-[0_0_20px_rgba(0,0,0,0.35)]"
             >
               <div className="flex flex-col gap-1.5 w-5 z-10">
                 <motion.span 

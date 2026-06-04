@@ -6,6 +6,8 @@ import Navbar from '../components/navbar';
 import HeroSection from '../components/hero'; 
 import AboutSection from '../components/about';
 
+import HeroSection1 from '../components/hero1';
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,6 +25,7 @@ export default function Home() {
         <>
           <Navbar />
           <HeroSection />
+          <HeroSection1 />
           <AboutSection />
         </>
       )}
