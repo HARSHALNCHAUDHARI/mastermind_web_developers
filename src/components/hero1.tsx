@@ -1,10 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import FloatingServiceCubes from './floating3d';
 
 // --- Animation Variants ---
-const fadeUpSpring = {
+const fadeUpSpring: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: { 
     opacity: 1, 
@@ -13,7 +13,7 @@ const fadeUpSpring = {
   }
 };
 
-const containerStagger = {
+const containerStagger: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
