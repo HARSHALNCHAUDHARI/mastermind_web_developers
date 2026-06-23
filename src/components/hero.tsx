@@ -2,7 +2,7 @@
 
 import { motion, type Variants } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import FloatingCubes3D from './AgenticCore3D'; 
+import FloatingServiceCubes from './floating3d';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -106,7 +106,7 @@ useEffect(() => {
       {/* --- FULL SCREEN 3D CUBES --- */}
       <div className="absolute inset-0 z-10 pointer-events-none">
          <div className="w-full h-full pointer-events-auto">
-            <FloatingCubes3D isActive={isSpeaking} />
+            <FloatingServiceCubes isActive={isSpeaking} />
          </div>
       </div>
 

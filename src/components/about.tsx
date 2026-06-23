@@ -4,340 +4,356 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const statsData = [
-  { value: 150, suffix: '+', label: 'Completed Projects' },
-  { value: 500, suffix: '+', label: 'Awesome Clients' },
-  { value: 8, suffix: '+', label: 'Years Expertise' },
+/* ════════════════════════════════════════
+   SVG ICONS
+════════════════════════════════════════ */
+const CubeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" />
+  </svg>
+);
+const UsersIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+const TrophyIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+    <path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><circle cx="12" cy="9" r="4" />
+  </svg>
+);
+const GlobeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    <path d="M2 12h20" />
+  </svg>
+);
+const TargetIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c1b1b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
+  </svg>
+);
+const EyeIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c1b1b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
+const SparklesIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c1b1b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+  </svg>
+);
+
+/* ════════════════════════════════════════
+   ANIMATED COUNTER
+════════════════════════════════════════ */
+function AnimatedCounter({ target, duration = 2000 }: { target: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const hasRun = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasRun.current) {
+          hasRun.current = true;
+          const start = performance.now();
+          const tick = (now: number) => {
+            const progress = Math.min((now - start) / duration, 1);
+            setCount(Math.round((1 - Math.pow(1 - progress, 3)) * target));
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return <span ref={ref}>{count}</span>;
+}
+
+/* ════════════════════════════════════════
+   3D STACK + ENERGY LINES + PROCESS LIST
+════════════════════════════════════════ */
+const PROCESS_STEPS = [
+  { label: 'STRATEGY', desc: 'Understanding your goals and user needs.' },
+  { label: 'DESIGN', desc: 'Crafting intuitive and engaging experiences.' },
+  { label: 'DEVELOPMENT', desc: 'Building robust, scalable and future-ready solutions.' },
+  { label: 'GROWTH', desc: 'Driving results through data and continuous optimization.' },
 ];
 
-const platforms = [
-  { id: 'PF_01', name: 'SelectedFirms', url: 'https://selectedfirms.co', x: '88%', y: '50%', logoSrc: '/logos/selectedfirms.png' },
-  { id: 'PF_02', name: 'TechBehemoths', url: 'https://techbehemoths.com', x: '77%', y: '77%', logoSrc: '/logos/techbehemoths.png' },
-  { id: 'PF_03', name: 'SuperbCompanies', url: 'https://superbcompanies.com', x: '50%', y: '88%', logoSrc: '/logos/superbcompanies.png' },
-  { id: 'PF_04', name: 'ExportersIndia', url: 'https://exportersindia.com', x: '23%', y: '77%', logoSrc: '/logos/exportersindia.png' },
-  { id: 'PF_05', name: 'PuneOnline', url: 'https://puneonline.in', x: '12%', y: '50%', logoSrc: '/logos/puneonline.png' },
-  { id: 'PF_06', name: 'Clutch', url: 'https://clutch.co', x: '23%', y: '23%', logoSrc: '/logos/clutch.png' },
-  { id: 'PF_07', name: 'DesignRush', url: 'https://designrush.com', x: '50%', y: '12%', logoSrc: '/logos/designrush.png' },
-  { id: 'PF_08', name: 'Techreviewer', url: 'https://techreviewer.co', x: '77%', y: '23%', logoSrc: '/logos/techreviewer.png' },
-];
+function StackWithProcess() {
+  // Y-coordinates meticulously aligned to the right-most corner of each 3D glass plane
+  const lineY = [95, 170, 245, 320];
 
+  return (
+    <div className="process-module h1l-inter selection:bg-red-600 selection:text-white" style={{ position: 'relative', width: '100%', maxWidth: 950, height: 420, margin: '0 auto' }}>
+
+      {/* 1. STACK ZONE (Fixed Width Left Side) */}
+      <div style={{ position: 'absolute', left: 0, top: 0, width: 420, height: '100%', perspective: '1400px', zIndex: 2 }}>
+        <div style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d', transform: 'rotateX(60deg) rotateZ(-45deg)' }}>
+          {/* Exact Z depths to perfectly match the 75px gaps of the SVG lines */}
+          {[120, 35, -50, -135].map((zPx, i) => (
+            <div
+              key={i}
+              className="stack-layer"
+              style={{
+                position: 'absolute', 
+                width: 320,  // Much larger stack panels
+                height: 320, 
+                left: '50%', top: '50%',
+                marginLeft: -160, marginTop: -160,
+                background: 'rgba(255, 255, 255, 0.65)',
+                border: i === 0 ? '1.5px solid rgba(220,38,38,0.3)' : '1px solid rgba(200, 200, 200, 0.3)',
+                boxShadow: i === 0 
+                  ? 'inset 0 0 30px rgba(255,255,255,1), 0 20px 40px rgba(220,38,38,0.1)' 
+                  : 'inset 0 0 20px rgba(255,255,255,0.8), 0 10px 20px rgba(0,0,0,0.03)',
+                transform: `translateZ(${zPx}px)`,
+                borderRadius: 20, 
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%)', borderRadius: 20 }} />
+              
+              {i === 0 && (
+                <div style={{ position: 'absolute', zIndex: 5, filter: 'drop-shadow(0 15px 25px rgba(220,38,38,0.35))' }}>
+                  <span style={{ fontSize: 100, fontWeight: 900, color: '#dc2626', fontFamily: "'Clash Display', sans-serif", letterSpacing: '-0.05em' }}>M</span>
+                </div>
+              )}
+
+              {i === 3 && (
+                 <div style={{ position: 'absolute', bottom: 20, right: 20, width: 10, height: 10, background: '#dc2626', borderRadius: '50%', boxShadow: '0 0 14px rgba(220,38,38,1)' }} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 2. STRICT SVG LINE ZONE (Spans only the empty space between stack and text) */}
+      {/* Starting exactly where the stack's right corner ends, stopping at the text bullet */}
+      <div style={{ position: 'absolute', left: 400, top: 0, width: 120, height: '100%', zIndex: 1 }}>
+        <svg style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+          {lineY.map((y, i) => (
+            <g key={i}>
+              <line x1="0" y1={y} x2="100%" y2={y} stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="3 4" />
+              <line 
+                x1="0" y1={y} x2="100%" y2={y} 
+                stroke="#dc2626" strokeWidth="2" 
+                strokeDasharray="25 150" 
+                className="energy-line"
+                style={{ animationDelay: `${i * 0.3}s` }}
+              />
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      {/* 3. PROCESS TEXT ZONE (Absolutely positioned, guaranteed safe from lines) */}
+      <div style={{ position: 'absolute', left: 520, top: 0, width: 400, height: '100%', zIndex: 3 }}>
+        {PROCESS_STEPS.map((step, i) => (
+          <div
+            key={i}
+            className="proc-item"
+            style={{
+              position: 'absolute', top: lineY[i], left: 0,
+              transform: 'translateY(-50%)',
+              display: 'flex', alignItems: 'flex-start', gap: 16,
+            }}
+          >
+            {/* The exact Bullet Design from the screenshot */}
+            <div style={{ position: 'relative', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: -2 }}>
+              {/* Pulsing pale background */}
+              <div className="bullet-pulse" style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'rgba(220, 38, 38, 0.12)' }} />
+              {/* Solid dark red ring */}
+              <div style={{ position: 'absolute', inset: 3, borderRadius: '50%', border: '1.5px solid #dc2626' }} />
+              {/* Solid red core dot */}
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#dc2626' }} />
+            </div>
+
+            <div>
+              <h4 style={{ fontSize: 14, fontWeight: 800, color: '#9f1239', textTransform: 'uppercase', marginBottom: 6, fontFamily: "'Inter', sans-serif", letterSpacing: '0.06em' }}>
+                {step.label}
+              </h4>
+              <p style={{ fontSize: 14.5, color: '#334155', lineHeight: 1.6, fontFamily: "'Inter', sans-serif", maxWidth: 300, margin: 0 }}>
+                {step.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   MAIN COMPONENT
+════════════════════════════════════════ */
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const coreRef = useRef<HTMLDivElement>(null);
-  
-  const statsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const numbersRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const nodesRef = useRef<(HTMLAnchorElement | null)[]>([]);
-  const linesRef = useRef<(SVGLineElement | null)[]>([]);
-
-  const orbLeftRef = useRef<HTMLDivElement>(null);
-  const orbRightRef = useRef<HTMLDivElement>(null);
-
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-
     const ctx = gsap.context(() => {
-      
-      // 1. BACKGROUND ORB MOVEMENTS
-      gsap.fromTo(orbLeftRef.current,
-        { x: '-10vw', y: '-10vh' },
-        { x: '20vw', y: '25vh', duration: 10, repeat: -1, yoyo: true, ease: 'sine.inOut' }
-      );
-
-      gsap.fromTo(orbRightRef.current,
-        { x: '10vw', y: '10vh' },
-        { x: '-20vw', y: '-25vh', duration: 12, repeat: -1, yoyo: true, ease: 'sine.inOut' }
-      );
-
-      gsap.fromTo('.ambient-point',
-        { y: 20, opacity: 0.1 },
-        { y: -20, opacity: 0.4, duration: 4, stagger: { amount: 2, each: 0.2, repeat: -1, yoyo: true }, ease: 'sine.inOut' }
-      );
-
-      // 2. HEADER COPY ENTRY
-      if (textRef.current) {
-        gsap.fromTo(textRef.current.children,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out', scrollTrigger: { trigger: textRef.current, start: 'top 80%' } }
-        );
-      }
-
-      // 3. TELEMETRY STATS RUN
-      statsRef.current.forEach((stat, index) => {
-        if (!stat) return;
-        const numberSpan = numbersRef.current[index];
-        
-        gsap.fromTo(stat, 
-          { opacity: 0, scale: 0.95 }, 
-          { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out', scrollTrigger: { trigger: stat, start: 'top 85%' } }
-        );
-
-        if (numberSpan) {
-          gsap.fromTo(numberSpan,
-            { innerText: 0 },
-            {
-              innerText: statsData[index].value,
-              duration: 1.6, snap: { innerText: 1 }, ease: 'power3.out',
-              scrollTrigger: { trigger: numberSpan, start: 'top 85%' },
-              onUpdate: function() {
-                numberSpan.innerText = Math.ceil(Number(this.targets()[0].innerText)).toString();
-              }
-            }
-          );
-        }
-      });
-
-      // 4. DESKTOP-SPECIFIC RADIAL SETUP (Only triggers if element is present in viewport layout)
-      if (mapContainerRef.current && coreRef.current && window.innerWidth >= 768) {
-        const mapTl = gsap.timeline({
-          scrollTrigger: { trigger: mapContainerRef.current, start: 'top 75%' }
-        });
-
-        mapTl.fromTo(coreRef.current, 
-          { scale: 0, opacity: 0 }, 
-          { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.5)' }
-        );
-
-        linesRef.current.forEach((line) => {
-          if (!line) return;
-          mapTl.fromTo(line, 
-            { strokeDasharray: 100, strokeDashoffset: 100 },
-            { strokeDashoffset: 0, duration: 0.4, ease: 'power3.out' },
-            '-=0.3'
-          );
-        });
-
-        nodesRef.current.forEach((node, i) => {
-          if (!node) return;
-          mapTl.fromTo(node,
-            { opacity: 0, scale: 0.85 },
-            { 
-              opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out',
-              onComplete: () => {
-                gsap.to(node, {
-                  y: `+=${Math.random() * 6 + 4}`,
-                  duration: Math.random() * 1 + 1.5,
-                  repeat: -1, yoyo: true, ease: 'sine.inOut'
-                });
-              }
-            },
-            '-=0.3'
-          );
-        });
-      } else {
-        // MOBILE ONLY STAGGER UP (Since the radial container is bypassed on mobile viewports)
-        gsap.fromTo('.mobile-platform-node',
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: 'power2.out',
-            scrollTrigger: { trigger: '.mobile-platform-grid', start: 'top 85%' }
-          }
-        );
-      }
-
+      gsap.from('.ab-heading > *', { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out', scrollTrigger: { trigger: '.ab-heading', start: 'top 85%' }});
+      gsap.from('.stack-layer', { y: -40, opacity: 0, duration: 1, stagger: 0.15, ease: 'back.out(1.2)', scrollTrigger: { trigger: '.process-module', start: 'top 85%' }});
+      gsap.from('.proc-item', { x: 30, opacity: 0, duration: 0.8, stagger: 0.15, ease: 'power2.out', scrollTrigger: { trigger: '.process-module', start: 'top 85%' }});
+      gsap.from('.stat-box', { scale: 0.9, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(1.5)', scrollTrigger: { trigger: '.stats-wrapper', start: 'top 90%' }});
+      gsap.from('.val-row', { y: 20, opacity: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out', scrollTrigger: { trigger: '.values-wrapper', start: 'top 85%' }});
+      gsap.from('.center-img', { filter: 'blur(10px)', scale: 1.05, opacity: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '.center-img', start: 'top 85%' }});
     }, sectionRef);
-
     return () => ctx.revert();
   }, []);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!sectionRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePos({ x, y });
-  };
-
   return (
-    <section 
-      ref={sectionRef} 
-      onMouseMove={handleMouseMove}
-      id="about-us" 
-      className="relative w-full bg-[#030101] text-white py-16 md:py-24 lg:py-32 overflow-hidden font-sans selection:bg-red-600/30"
+    <section
+      ref={sectionRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        minHeight: '100vh',
+        background: '#fdfdfd',
+        padding: '120px 6%',
+        fontFamily: "'Inter', sans-serif",
+        overflow: 'hidden',
+        color: '#0f172a'
+      }}
     >
-      {/* Background Ambience Layers */}
-      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none select-none">
-        <div ref={orbLeftRef} className="absolute top-[5%] left-[-10%] w-[350px] sm:w-[600px] md:w-[700px] h-[350px] sm:h-[600px] md:h-[700px] bg-[#cc0000] blur-[120px] sm:blur-[150px] rounded-full mix-blend-screen opacity-[0.25] sm:opacity-[0.35] transform-gpu" />
-        <div ref={orbRightRef} className="absolute bottom-[5%] right-[-10%] w-[400px] sm:w-[650px] md:w-[750px] h-[400px] sm:h-[650px] md:h-[750px] bg-[#991b1b] blur-[140px] sm:blur-[180px] rounded-full mix-blend-screen opacity-[0.2] sm:opacity-[0.25] transform-gpu" />
-        <div className="absolute inset-0 w-full h-full flex flex-wrap justify-between items-center p-10 sm:p-20 opacity-20">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="ambient-point w-1 h-1 sm:w-1.5 sm:h-1.5 bg-red-500 rounded-full shadow-[0_0_8px_#ef4444]" />
-          ))}
-        </div>
-        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
-        <div className="absolute inset-0 opacity-40" style={{ background: `radial-gradient(600px circle at ${mousePos.x}% ${mousePos.y}%, rgba(220, 38, 38, 0.08), transparent 60%)` }} />
-      </div>
+      {/* Subtle Dot Grid Background */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '32px 32px', opacity: 0.3, pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* Main Structural Framework Layout Container */}
-      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 flex flex-col gap-20 md:gap-28">
-        
-        {/* UPPER ROW: MANIFESTO & TELEMETRY COUNTER LAYOUT */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1400, margin: '0 auto' }}>
+
+        {/* ══ TOP ROW ══ */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', justifyContent: 'space-between', marginBottom: 100 }}>
           
-          <div ref={textRef} className="w-full lg:w-1/2 flex flex-col">
-            <div className="inline-flex items-center gap-4 mb-4 md:mb-6">
-              <div className="w-12 h-[2px] bg-red-600" />
-              <span className="text-red-500 font-mono text-xs sm:text-sm tracking-[0.3em] uppercase font-bold">About Mastermind</span>
+          <div className="ab-heading" style={{ flex: '1 1 400px', maxWidth: 500, paddingTop: 60 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.15em', color: '#dc2626', textTransform: 'uppercase' }}>About Us</span>
+              <div style={{ width: 30, height: 1.5, background: '#dc2626' }} />
             </div>
-            
-            <h2 className="text-[clamp(2.25rem,4.5vw,4.5rem)] font-bold tracking-tight leading-[1.05] mb-6 md:mb-8 text-white uppercase">
-              Where AI Meets Creativity for <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-800">Smarter Marketing.</span>
+
+            <h2 style={{ fontSize: 'clamp(2.5rem, 4vw, 3.8rem)', fontWeight: 500, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#000', marginBottom: 28 }}>
+              Building Digital Products That Drive <span style={{ color: '#dc2626' }}>Real Impact.</span>
             </h2>
-            
-            <p className="text-zinc-200 text-base sm:text-lg md:text-xl font-light leading-relaxed mb-4 md:mb-6 border-l-[3px] border-red-600 pl-4 md:pl-6 bg-white/[0.01] py-1.5 rounded-r-lg">
-              Based in Pune, we are a leading digital marketing agency with 8+ years of proven expertise in building brands that win online.
-            </p>
-            
-            <p className="text-zinc-400 text-sm sm:text-base font-light leading-relaxed">
-              Our team of strategists, designers, and tech innovators specialize in SEO, PPC, social media, and AI-driven campaigns that deliver measurable ROI. We harness the power of artificial intelligence to predict trends, optimize campaigns in real time, and personalize customer journeys.
+
+            <p style={{ fontSize: 16, color: '#334155', lineHeight: 1.6, fontWeight: 400 }}>
+              MasterMind Systems is a digital innovation partner for ambitious brands. We blend creativity, technology
+              and strategy to build products and experiences that create measurable growth.
             </p>
           </div>
 
-          <div className="w-full lg:w-1/2 flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-6 md:gap-8">
-            {statsData.map((stat, index) => (
-              <div 
-                key={index}
-                ref={(el) => { if (el) statsRef.current[index] = el; }}
-                className="flex-1 min-w-[140px] sm:min-w-[180px] bg-[#0c0303]/90 border border-white/10 p-6 sm:p-8 rounded-2xl backdrop-blur-md shadow-2xl flex flex-col items-center justify-center text-center group transition-colors duration-300 hover:border-red-600/50"
-              >
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-white mb-1.5 flex items-baseline">
-                  <span ref={(el) => { if (el) numbersRef.current[index] = el; }}>0</span>
-                  <span className="text-red-600">{stat.suffix}</span>
-                </div>
-                <div className="h-[1px] w-10 bg-red-600/30 group-hover:bg-red-600 group-hover:w-16 transition-all duration-300 mb-2.5" />
-                <p className="text-zinc-400 text-[11px] sm:text-xs md:text-sm font-light tracking-widest uppercase">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
+          <div style={{ flex: '1 1 750px', display: 'flex', justifyContent: 'flex-end' }}>
+            <StackWithProcess />
           </div>
         </div>
 
-        {/* LOWER ROW: RECONFIGURED NEURAL MAP MATRIX */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-8 items-center w-full">
+        <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.06) 10%, rgba(0,0,0,0.06) 90%, transparent)', marginBottom: 60 }} />
+
+        {/* ══ BOTTOM ROW ══ */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) 1.5fr minmax(320px, 1fr)', gap: '60px', alignItems: 'stretch' }}>
           
-          {/* A. TABLET / DESKTOP RADIAL MESH VIEWPORT LAYOUT */}
-          <div ref={mapContainerRef} className="hidden md:flex w-full lg:w-2/3 items-center justify-center relative z-10">
-            <div className="relative w-full max-w-[480px] lg:max-w-[750px] aspect-square bg-[#070202]/60 border border-white/10 rounded-full p-4 backdrop-blur-md shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-              
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
-                {platforms.map((platform, i) => (
-                  <g key={`line-${i}`}>
-                    <line 
-                      ref={(el) => { if (el) linesRef.current[i] = el; }}
-                      x1="50" y1="50" 
-                      x2={parseFloat(platform.x)} y2={parseFloat(platform.y)} 
-                      stroke="rgba(220,38,38,0.25)" strokeWidth="0.5"
-                      pathLength="100" 
-                    />
-                    <line 
-                      x1="50" y1="50" 
-                      x2={parseFloat(platform.x)} y2={parseFloat(platform.y)} 
-                      stroke="#dc2626" strokeWidth="1.25"
-                      strokeLinecap="round"
-                      pathLength="100"
-                      strokeDasharray="6 94" 
-                      className="animate-[kineticEnergy_1.1s_linear_infinite]"
-                      style={{ filter: 'drop-shadow(0 0 5px #dc2626)', animationDelay: `${i * 0.12}s` }}
-                    />
-                  </g>
-                ))}
-              </svg>
-
-              <div ref={coreRef} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 lg:w-16 lg:h-16 bg-[#0c0303] border border-red-600 rounded-full flex items-center justify-center z-30 shadow-[0_0_35px_rgba(220,38,38,0.5)]">
-                 <span className="font-black text-red-500 text-xl lg:text-2xl transform -translate-y-0.5">M</span>
-                 <div className="absolute inset-0 rounded-full border border-red-600 animate-ping opacity-20 pointer-events-none" />
-              </div>
-
-              {platforms.map((platform, index) => (
-                <a
-                  key={platform.id}
-                  href={platform.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  ref={(el) => { if (el) nodesRef.current[index] = el; }}
-                  className="absolute flex items-center justify-center bg-[#080202] border border-white/10 rounded-xl px-3 lg:px-4 py-2 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:border-red-500 hover:bg-[#0c0303] group z-20 cursor-pointer overflow-hidden transition-all duration-300"
-                  style={{ 
-                    left: platform.x, top: platform.y,
-                    transform: 'translate(-50%, -50%)',
-                    width: '220px', // Perfectly scaled for tablet screen widths
-                    height: '75px'
-                  }}
-                >
-                   <div className="absolute inset-0 bg-red-600/0 group-hover:bg-red-600/10 transition-colors duration-300 pointer-events-none" />
-                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 rounded-full text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-50 group-hover:scale-100 duration-300 shadow-[0_0_10px_#dc2626]">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
-                   </div>
-                   <div className="relative w-full h-full flex items-center justify-center">
-                      <img 
-                        src={platform.logoSrc} alt={platform.name} 
-                        className="max-h-5 max-w-[120px] w-auto h-auto object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                      <span className="hidden font-mono text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-300 group-hover:text-white whitespace-nowrap text-center px-1">
-                        {platform.name}
-                      </span>
-                   </div>
-                </a>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <p style={{ fontSize: 15, color: '#334155', lineHeight: 1.6, marginBottom: 32 }}>
+              Over the years, we've had the privilege of working with amazing clients and delivering solutions that make a difference.
+            </p>
+            
+            <div className="stats-wrapper" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid #f1f5f9', borderLeft: '1px solid #f1f5f9' }}>
+              {[
+                { val: 120, suff: '+', label: 'Projects Delivered', Icon: CubeIcon, isNum: true },
+                { val: 98, suff: '%', label: 'Client Satisfaction', Icon: UsersIcon, isNum: true },
+                { val: 10, suff: '+', label: 'Awards Won', Icon: TrophyIcon, isNum: true },
+                { val: 0, suff: '', label: 'Clients Worldwide', Icon: GlobeIcon, isNum: false, customText: 'Global' },
+              ].map((s, i) => (
+                <div key={i} className="stat-box" style={{ padding: '24px 16px', borderRight: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: '1px solid #f1f5f9', borderRadius: 8 }}>
+                    <s.Icon />
+                  </div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: '#000', lineHeight: 1, marginTop: 4 }}>
+                    {s.isNum ? <><AnimatedCounter target={s.val} /><span style={{ fontSize: 24 }}>{s.suff}</span></> : <span>{s.customText}</span>}
+                  </div>
+                  <p style={{ fontSize: 12, color: '#dc2626', fontWeight: 500 }}>{s.label}</p>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* B. MOBILE NATIVE PLATFORM GRID LAYOUT (Strictly targets devices under 768px wide) */}
-          <div className="mobile-platform-grid grid grid-cols-2 gap-3 w-full md:hidden z-10">
-            {platforms.map((platform) => (
-              <a
-                key={platform.id}
-                href={platform.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mobile-platform-node relative flex items-center justify-center h-20 bg-[#080202]/90 border border-white/10 rounded-xl px-4 py-3 shadow-lg active:border-red-500"
-              >
-                <div className="absolute top-2 right-2 text-red-500">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+          <div className="center-img" style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', minHeight: 380, background: '#f1f5f9' }}>
+             <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop" alt="MasterMind Studio" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(0.3) contrast(1.1)' }} />
+             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%)' }}>
+               <span style={{ fontSize: 100, fontWeight: 900, color: '#ef4444', filter: 'drop-shadow(0 0 40px rgba(239,68,68,0.8)) blur(0.5px)', fontFamily: "'Clash Display', sans-serif" }}>M</span>
+             </div>
+          </div>
+
+          <div className="values-wrapper" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            {[
+              { title: 'Our Mission', desc: 'To empower brands with digital solutions that solve real problems and unlock growth.', Icon: TargetIcon },
+              { title: 'Our Vision', desc: 'To be a global leader in building digital experiences that shape the future.', Icon: EyeIcon },
+              { title: 'Our Values', desc: 'Innovation, Integrity and collaboration are at the core of everything we do.', Icon: SparklesIcon },
+            ].map((v, i) => (
+              <div key={i} className="val-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 20, padding: '24px 0', borderBottom: i !== 2 ? '1px solid #f1f5f9' : 'none' }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#fff', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                  <v.Icon />
                 </div>
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <img 
-                    src={platform.logoSrc} alt={platform.name} 
-                    className="max-h-6 max-w-[110px] w-auto h-auto object-contain filter grayscale opacity-80"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                    }}
-                  />
-                  <span className="hidden font-mono text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-300 whitespace-nowrap text-center">
-                    {platform.name}
-                  </span>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 500, color: '#000', marginBottom: 8 }}>{v.title}</h3>
+                  <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.5 }}>{v.desc}</p>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
 
-          {/* RIGHT SIDE TEXT CALLOUT AREA */}
-          <div className="w-full lg:w-1/3 flex flex-col z-20 lg:pl-12 text-left">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight leading-[1.1] mb-4 md:mb-6 text-white uppercase">
-              Recognized On <br /> Major Platforms
-            </h2>
-            <p className="text-zinc-400 text-sm sm:text-base font-light leading-relaxed mb-6 md:mb-8 max-w-md">
-              Our commitment to excellence and results has been recognized by leading industry platforms. We are proud to be a trusted partner for businesses seeking to elevate their digital presence and achieve measurable growth.
-            </p>
-            
-            <div className="flex items-center gap-3 bg-[#0a0303] border border-white/10 w-max px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-lg">
-               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-red-600 shadow-[0_0_8px_#dc2626] animate-pulse" />
-               <span className="text-[10px] sm:text-xs font-mono text-zinc-300 uppercase tracking-widest mt-0.5">Network Active</span>
-            </div>
-          </div>
-
         </div>
-
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+        @import url('https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700,900&display=swap');
+
+        /* Flow Animation */
+        @keyframes flowEnergy {
+          0% { stroke-dashoffset: 175; }
+          100% { stroke-dashoffset: 0; }
+        }
+        .energy-line {
+          animation: flowEnergy 1.6s linear infinite;
+        }
+
+        /* Pale Background Radar Pulse */
+        @keyframes pulseBackground {
+          0% { transform: scale(0.85); opacity: 1; }
+          50% { transform: scale(1.3); opacity: 0; }
+          100% { transform: scale(0.85); opacity: 0; }
+        }
+        .bullet-pulse {
+          animation: pulseBackground 1.8s ease-out infinite;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1200px) {
+          .bottom-row { grid-template-columns: 1fr 1fr !important; }
+          .values-wrapper { grid-column: span 2; }
+        }
+        @media (max-width: 1000px) {
+          .process-module { height: auto !important; }
+          /* Collapse strict layout on mobile */
+          .process-module > div { position: relative !important; left: auto !important; width: 100% !important; }
+          .process-module > div:nth-child(2) { display: none; } /* Hide lines */
+          .proc-item { position: relative !important; top: auto !important; transform: none !important; margin-bottom: 24px; padding-left: 20px;}
+        }
+      `}} />
     </section>
   );
 }

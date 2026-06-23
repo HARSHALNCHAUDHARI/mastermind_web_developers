@@ -1,11 +1,11 @@
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Environment, RoundedBox, Float } from '@react-three/drei';
+import { Environment, RoundedBox, Float, Html } from '@react-three/drei';
 import { useRef, useMemo } from 'react';
 import * as THREE from 'three';
 
-function SolidCube({ position, rotation, speed, scale, isActive }: any) {
+function SolidCube({ position, rotation, speed, scale, isActive, label }: any) {
   const meshRef = useRef<THREE.Mesh>(null);
   const { pointer, viewport } = useThree();
 
@@ -35,29 +35,35 @@ function SolidCube({ position, rotation, speed, scale, isActive }: any) {
   return (
     <mesh ref={meshRef} position={position} rotation={rotation} scale={scale}>
       <RoundedBox args={[1, 1, 1]} radius={0.04} smoothness={4}>
-        {/* Upgraded to Physical Material to capture the background color bleed */}
         <meshPhysicalMaterial
-          color="#140303"        // Deep red/black base so it absorbs the background color
-          roughness={0.15}       // Slightly softer so the red glow spreads across the surface
-          metalness={0.8}        // Lowered slightly so the base color shows through
-          clearcoat={1}          // Keeps the sharp, glossy reflections on the edges
+          color="#140303"
+          roughness={0.15}
+          metalness={0.8}
+          clearcoat={1}
           clearcoatRoughness={0.05}
           envMapIntensity={1.2}  
         />
       </RoundedBox>
+      {label && (
+        <Html transform sprite position={[0, 0, 0]} scale={0.6}>
+          <div className="px-3 py-1.5 bg-black/80 backdrop-blur-md rounded-lg border border-red-900/50 text-xs font-bold tracking-widest text-white whitespace-nowrap shadow-[0_0_15px_rgba(227,30,36,0.3)] pointer-events-none uppercase">
+            {label}
+          </div>
+        </Html>
+      )}
     </mesh>
   );
 }
 
 export default function FloatingCubes3D({ isActive }: { isActive: boolean }) {
   const cubeData = useMemo(() => [
-    { position: [5.5, 3.5, -2], rotation: [0.5, 0.8, 0], speed: 1.2, scale: 1.6 }, 
-    { position: [2.2, 1.8, 0], rotation: [0.2, -0.4, 0.1], speed: 0.9, scale: 1.1 },  
-    { position: [4.5, 1.2, -1], rotation: [0.7, 0.3, -0.2], speed: 1.1, scale: 1.3 }, 
-    { position: [1.8, -0.5, 1.5], rotation: [-0.2, 0.5, 0.1], speed: 0.8, scale: 1.2 }, 
-    { position: [3.8, -1.0, 0], rotation: [0.4, -0.6, 0.3], speed: 1.3, scale: 1.0 },   
-    { position: [2.5, -2.8, 1], rotation: [0.8, 0.2, 0.5], speed: 1.0, scale: 1.5 },  
-    { position: [5.8, -3.5, -0.5], rotation: [0.1, 0.9, 0], speed: 1.4, scale: 1.7 }, 
+    { position: [5.5, 3.5, -2], rotation: [0.5, 0.8, 0], speed: 1.2, scale: 1.6, label: 'Web Dev' }, 
+    { position: [2.2, 1.8, 0], rotation: [0.2, -0.4, 0.1], speed: 0.9, scale: 1.1, label: 'Marketing' },  
+    { position: [4.5, 1.2, -1], rotation: [0.7, 0.3, -0.2], speed: 1.1, scale: 1.3, label: 'SEO' }, 
+    { position: [1.8, -0.5, 1.5], rotation: [-0.2, 0.5, 0.1], speed: 0.8, scale: 1.2, label: 'UI/UX' }, 
+    { position: [3.8, -1.0, 0], rotation: [0.4, -0.6, 0.3], speed: 1.3, scale: 1.0, label: 'Mobile' },   
+    { position: [2.5, -2.8, 1], rotation: [0.8, 0.2, 0.5], speed: 1.0, scale: 1.5, label: 'Branding' },  
+    { position: [5.8, -3.5, -0.5], rotation: [0.1, 0.9, 0], speed: 1.4, scale: 1.7, label: 'Cloud' }, 
   ], []);
 
   return (
